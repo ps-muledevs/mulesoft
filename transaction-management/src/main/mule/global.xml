@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:bti="http://www.mulesoft.org/schema/mule/ee/bti" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/bti http://www.mulesoft.org/schema/mule/ee/bti/current/mule-bti-ee.xsd">
+  <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a216f9d3-70cb-4dbb-8e05-1efe4f18b572" >
+    <http:listener-connection host="0.0.0.0" port="8081" />
+  </http:listener-config>
+  <vm:config name="VM_Config" doc:name="VM Config" doc:id="0ca9abf9-a981-47f6-9eb1-beee45b20f66" >
+    <vm:queues >
+      <vm:queue queueName="employee" />
+    </vm:queues>
+  </vm:config>
+  <db:config name="Database_Config" doc:name="Database Config" doc:id="30d37789-f560-4340-a40f-b0efb1ddfb59" >
+    <db:my-sql-connection host="localhost" port="3306" user="root" password="Tri@8March21" database="employee" useXaTransactions="true"/>
+  </db:config>
+  <bti:transaction-manager doc:name="Bitronix Transaction Manager" doc:id="3616a0a7-4266-45a0-864e-76e093fbb658" />
+</mule>

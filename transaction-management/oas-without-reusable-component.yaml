@@ -1,0 +1,587 @@
+openapi: 3.0.3
+info:
+  title: emp-hr-database-sys-api
+  description: This API will be used for Employee HR Database Managment System API
+  version: v1
+servers:
+  - url: '{protocol}://{environment}.pluralsight.com/api/v1'
+    variables:
+      protocol:
+        enum: [http,https]
+        default: http
+      environment:
+        enum: [mulesoft-sandbox,mulesoft-staging,mulesoft]
+        default: mulesoft-staging
+tags:
+  - name: Employee
+    description: This API's will be used for Employee related services
+    
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+security:
+  - basicAuth: []
+
+paths:
+  /employees:
+    post:
+      description: This API will be used for creating multiple Employee data
+      tags:
+        - Employee
+      parameters:
+        - name: correlationId
+          in: header
+          schema:
+            type: string
+            example: "b5a95a63-f190-4c91-880a-5b54512fa6b1"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "01"
+                  firstName:
+                    type: string
+                    example: "Trilochan"
+                  lastName:
+                    type: string
+                    example: "Raparthi"
+                  email:
+                    type: string
+                    pattern: ^[0-9a-zA-Z-+._]+@[a-zA-Z]+.[a-zA-Z]{2,63}$
+                    example: "trilochan28raparthi@gmail.com"
+                  phone:
+                    type: string
+                    pattern: ^[0-9]{1,10}$
+                    example: "8686554447"
+                  department:
+                    type: string
+                    example: "Engineering"
+                  position:
+                    type: string
+                    example: "Software Engineering"
+                  hireDate:
+                    type: string
+                    example: "21-03-2024"
+                required: [id,firstname,lastName,email,phone,department,position,hireDate]
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Employee created successfully"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Bad Request"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
+    get:
+      description: This API is used to fetch the multiple Employee Data
+      tags:
+        - Employee
+      parameters:
+        - name: correlationId
+          in: header
+          schema:
+            type: string
+            example: "b5a95a63-f190-4c91-880a-5b54512fa6b1"  
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "01"
+                    firstName:
+                      type: string
+                      example: "Trilochan"
+                    lastName:
+                      type: string
+                      example: "Raparthi"
+                    email:
+                      type: string
+                      pattern: ^[0-9a-zA-Z-+._]+@[a-zA-Z]+.[a-zA-Z]{2,63}$
+                      example: "trilochan28raparthi@gmail.com"
+                    phone:
+                      type: string
+                      pattern: ^[0-9]{1,10}$
+                      example: "8686554447"
+                    department:
+                      type: string
+                      example: "Engineering"
+                    position:
+                      type: string
+                      example: "Software Engineering"
+                    hireDate:
+                      type: string
+                      example: "21-03-2024"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"  
+  /employee:
+    post:
+      description: This API will be used to create a new single Employee
+      tags:
+        - Employee
+      parameters:
+        - name: correlationId
+          in: header
+          schema:
+            type: string
+            example: "b5a95a63-f190-4c91-880a-5b54512fa6b1"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "01"
+                firstName:
+                  type: string
+                  example: "Trilochan"
+                lastName:
+                  type: string
+                  example: "Raparthi"
+                email:
+                  type: string
+                  pattern: ^[0-9a-zA-Z-+._]+@[a-zA-Z]+.[a-zA-Z]{2,63}$
+                  example: "trilochan28raparthi@gmail.com"
+                phone:
+                  type: string
+                  pattern: ^[0-9]{1,10}$
+                  example: "8686554447"
+                department:
+                  type: string
+                  example: "Engineering"
+                position:
+                  type: string
+                  example: "Software Engineering"
+                hireDate:
+                  type: string
+                  example: "21-03-2024"
+              required: [id,firstname,lastName,email,phone,department,position,hireDate] 
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Employee created successfully"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Bad Request"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"          
+    get:
+      description: This API will be used to fetch single employee
+      tags:
+        - Employee
+      parameters:
+        - name: correlationId
+          in: header
+          schema:
+            type: string
+            example: "b5a95a63-f190-4c91-880a-5b54512fa6b1" 
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "01"
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "01"
+                  firstName:
+                    type: string
+                    example: "Trilochan"
+                  lastName:
+                    type: string
+                    example: "Raparthi"
+                  email:
+                    type: string
+                    pattern: ^[0-9a-zA-Z-+._]+@[a-zA-Z]+.[a-zA-Z]{2,63}$
+                    example: "trilochan28raparthi@gmail.com"
+                  phone:
+                    type: string
+                    pattern: ^[0-9]{1,10}$
+                    example: "8686554447"
+                  department:
+                    type: string
+                    example: "Engineering"
+                  position:
+                    type: string
+                    example: "Software Engineering"
+                  hireDate:
+                    type: string
+                    example: "21-03-2024" 
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Not Found"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"                
+  /employee/{id}:
+    get:
+      description: This API will be used to fetch single employee
+      tags:
+        - Employee
+      parameters:
+        - name: correlationId
+          in: header
+          schema:
+            type: string
+            example: "b5a95a63-f190-4c91-880a-5b54512fa6b1" 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "01"
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "01"
+                  firstName:
+                    type: string
+                    example: "Trilochan"
+                  lastName:
+                    type: string
+                    example: "Raparthi"
+                  email:
+                    type: string
+                    pattern: ^[0-9a-zA-Z-+._]+@[a-zA-Z]+.[a-zA-Z]{2,63}$
+                    example: "trilochan28raparthi@gmail.com"
+                  phone:
+                    type: string
+                    pattern: ^[0-9]{1,10}$
+                    example: "8686554447"
+                  department:
+                    type: string
+                    example: "Engineering"
+                  position:
+                    type: string
+                    example: "Software Engineering"
+                  hireDate:
+                    type: string
+                    example: "21-03-2024" 
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Not Found"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
+    put:
+      description: This API will be used to update whole employee
+      tags:
+      - Employee 
+      parameters:
+        - name: correlationId
+          in: header
+          schema:
+            type: string
+            example: "b5a95a63-f190-4c91-880a-5b54512fa6b1" 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "01"            
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "01"
+                firstName:
+                  type: string
+                  example: "Trilochan"
+                lastName:
+                  type: string
+                  example: "Raparthi"
+                email:
+                  type: string
+                  pattern: ^[0-9a-zA-Z-+._]+@[a-zA-Z]+.[a-zA-Z]{2,63}$
+                  example: "trilochan28raparthi@gmail.com"
+                phone:
+                  type: string
+                  pattern: ^[0-9]{1,10}$
+                  example: "8686554447"
+                department:
+                  type: string
+                  example: "Engineering"
+                position:
+                  type: string
+                  example: "Software Engineering"
+                hireDate:
+                  type: string
+                  example: "21-03-2024"
+              required: [id] 
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Employee updated successfully"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Bad Request"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
+    patch:
+      description: This API will be used to update employee partially
+      tags:
+      - Employee 
+      parameters:
+        - name: correlationId
+          in: header
+          schema:
+            type: string
+            example: "b5a95a63-f190-4c91-880a-5b54512fa6b1" 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "01"            
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "01"
+                firstName:
+                  type: string
+                  example: "Trilochan"
+                lastName:
+                  type: string
+                  example: "Raparthi"
+                email:
+                  type: string
+                  pattern: ^[0-9a-zA-Z-+._]+@[a-zA-Z]+.[a-zA-Z]{2,63}$
+                  example: "trilochan28raparthi@gmail.com"
+                phone:
+                  type: string
+                  pattern: ^[0-9]{1,10}$
+                  example: "8686554447"
+                department:
+                  type: string
+                  example: "Engineering"
+                position:
+                  type: string
+                  example: "Software Engineering"
+                hireDate:
+                  type: string
+                  example: "21-03-2024"
+              required: [id] 
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Employee updated successfully"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Bad Request"
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Not Found"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
+    delete:
+      description: This API will be used to delete employee
+      tags:
+      - Employee 
+      parameters:
+        - name: correlationId
+          in: header
+          schema:
+            type: string
+            example: "b5a95a63-f190-4c91-880a-5b54512fa6b1" 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "01"
+      responses:
+        204:
+          description: "No Content"
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Not Found"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"

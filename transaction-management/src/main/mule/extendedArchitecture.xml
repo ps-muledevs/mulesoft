@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+  <flow name="extendedArchitectureFlow1" doc:id="76eb8932-b32b-4a84-b401-1c3b08f81059" >
+    <http:listener doc:name="Listener" doc:id="9612a61b-d4b0-4716-8db7-8b10c12acd1d" config-ref="HTTP_Listener_config" path="/extendedArchitectureFlow1" />
+    <logger level="INFO" doc:name="ExtendedArchitecture flow started" doc:id="718c84ed-7da8-4266-a123-a25eefe4eed0" message="ExtendedArchitecture flow started" />
+    <ee:transform doc:name="Request Mapping" doc:id="111efd36-af73-48ec-a9f7-7ae5cbcd2d0a" >
+      <ee:message >
+      </ee:message>
+      <ee:variables >
+        <ee:set-variable variableName="dbRequest" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"id": payload.id,
+	"gender": payload.gender,
+	"city": payload.city,
+	"area": payload.address.area,
+	"state": payload.address.state,
+	"pin": payload.address.pin
+}]]></ee:set-variable>
+      </ee:variables>
+    </ee:transform>
+    <logger level="INFO" doc:name="Logging After Mapping Request" doc:id="1e4e6102-1a2c-4e4b-8bf0-e259387ba884" message="Logging After Mapping Request : #[payload]" />
+    <try doc:name="Try" doc:id="f5ba529c-11d1-44f9-af37-3faf73d91909" transactionalAction="ALWAYS_BEGIN" transactionType="XA">
+      <db:insert doc:name="Insert into Employee Table" doc:id="ff079824-1877-440c-86bb-24e57d70797b" config-ref="Database_Config" >
+        <db:sql ><![CDATA[insert into Employee(id, gender, city, area, state, pin) values(:id, :gender, :city, :area, :state, :pin)]]></db:sql>
+        <db:input-parameters ><![CDATA[#[vars.dbRequest]]]></db:input-parameters>
+      </db:insert>
+      <logger level="INFO" doc:name="Employee Table Response" doc:id="bac3d7ea-04c2-4674-9a3c-2308e2ca3824" message="Employee Table Response : #[payload]" />
+      <db:update doc:name="Update Employee Table" doc:id="bb30f075-0264-4b01-b06d-b4f92532f560" config-ref="Database_Config">
+        <db:sql ><![CDATA[UPDATE Employee set city =: city where id= '01']]></db:sql>
+        <db:input-parameters ><![CDATA[#[{
+	"city": payload.city
+}]]]></db:input-parameters>
+      </db:update>
+      <db:select doc:name="Fetch Employee" doc:id="b102bca8-adaf-47d5-a843-fbdfc6c0d10f" config-ref="Database_Config">
+        <db:sql ><![CDATA[select * from Employee]]></db:sql>
+      </db:select>
+      <set-payload value="#[payload]" doc:name="Set Payload" doc:id="ca112793-163f-4c50-96b2-03b755571d0b" />
+      <logger level="INFO" doc:name="Accessing Payload" doc:id="f82d74d6-14eb-4b9d-b014-3e4833f3e06f" message="#[payload]" />
+      <try doc:name="Try" doc:id="af727f9d-4fac-4e88-8d98-5a9b676122ee" transactionalAction="BEGIN_OR_JOIN">
+        <vm:publish queueName="employee" doc:name="Publish" doc:id="5e87c746-5b2f-4a4d-b7e0-57a514c2975c" config-ref="VM_Config" />
+        <raise-error doc:name="Raise error" doc:id="afb3fff0-13a5-4555-8166-73b23fff08d2" type="Hello:CUSTOM_ERROR" description="It's a custom error"/>
+        <error-handler >
+          <on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2c5a5079-e1d1-4ed7-ae39-dfcd78e2df12" >
+            <logger level="INFO" doc:name="Logger" doc:id="b57aa5f7-5f7e-4ef9-a512-8b137d534f05" message="In onErrorContinue with payload #[payload]"/>
+          </on-error-continue>
+        </error-handler>
+      </try>
+    </try>
+    <logger level="INFO" doc:name="Logger" doc:id="0ac3e9ed-3f31-42e2-b1ce-37efb206cf38" />
+  </flow>
+  <flow name="extendedArchitectureFlow2" doc:id="7247f358-59b6-47a3-afb0-cc8379d09b46" >
+    <vm:listener queueName="employee" doc:name="Listener" doc:id="fabb107b-89dd-4212-8985-b1d7a7114086" config-ref="VM_Config"/>
+    <ee:transform doc:name="Transform Message" doc:id="9f52c1bc-1a2d-48cc-97de-7e7cdb9174fd" >
+      <ee:message >
+        <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+      </ee:message>
+    </ee:transform>
+    <logger level="INFO" doc:name="Logger" doc:id="fc1db9b5-083e-4dd6-8b5e-677fac75a5f7" message="extendedArchitectureFlow2 ended"/>
+  </flow>
+</mule>

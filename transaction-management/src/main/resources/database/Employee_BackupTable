@@ -1,0 +1,17 @@
+CREATE DATABASE employee;
+
+USE employee;
+
+CREATE TABLE Employee_Backup (
+    id VARCHAR(20) NOT NULL,
+    gender TINYTEXT,
+    city TINYTEXT,
+    area TINYTEXT,
+    state TINYTEXT,
+    pin TINYTEXT,
+    PRIMARY KEY (id)
+);
+
+select * from Employee_Backup;
+
+truncate Employee_Backup;

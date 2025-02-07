@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+  <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="535625d1-2e2d-4807-9a05-62e618a8428f" >
+    <http:request-connection host="localhost" port="8081" />
+  </http:request-config>
+  <flow name="singleResourceFlow1" doc:id="ae83d18d-3e0b-4724-aaec-8d7fc15e9bc3" >
+    <http:listener doc:name="Listener" doc:id="9c12725b-41e7-4376-a52f-53b14c3d2bec" config-ref="HTTP_Listener_config" path="/singleResource1"/>
+    <logger level="INFO" doc:name="SingleResource flow started" doc:id="b53273dc-be9f-486f-8563-f9d0318db13c" message="SingleResource flow started"/>
+    <ee:transform doc:name="Request Mapping" doc:id="a4149fb5-57fa-4b15-ae03-67086f31f570" >
+      <ee:message >
+      </ee:message>
+      <ee:variables >
+        <ee:set-variable variableName="dbRequest" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"id": payload.id,
+	"gender": payload.gender,
+	"city": payload.city,
+	"area": payload.address.area,
+	"state": payload.address.state,
+	"pin": payload.address.pin
+}]]></ee:set-variable>
+      </ee:variables>
+    </ee:transform>
+    <logger level="INFO" doc:name="Logging After Mapping Request" doc:id="02a5d45a-ef37-4868-beea-9423ba78d4bc" message="Logging After Mapping Request : #[payload]"/>
+    <try doc:name="Try" doc:id="5fe97286-97c2-4bd6-ad8f-042ddafefe93" transactionalAction="ALWAYS_BEGIN">
+      <db:insert doc:name="Insert into Employee Table" doc:id="5ed97ad0-477b-46c8-a85b-099c24284730" config-ref="Database_Config">
+        <db:sql ><![CDATA[insert into Employee(id, gender, city, area, state, pin) values(:id, :gender, :city, :area, :state, :pin)]]></db:sql>
+        <db:input-parameters ><![CDATA[#[vars.dbRequest]]]></db:input-parameters>
+      </db:insert>
+      <logger level="INFO" doc:name="Employee Table Response" doc:id="5d31ad2f-f9e7-4290-93b8-c5a371837322" message="Employee Table Response : #[payload]"/>
+      <db:insert doc:name="Insert into Employee Backup Table" doc:id="41324b4e-01b7-4d64-b2f4-c16ac8020818" config-ref="Database_Config">
+        <db:sql ><![CDATA[insert into Employee_Backup(id, gender, city, area, state, pin) values(:id, :gender, :city, :area, :state, :pin)]]></db:sql>
+        <db:input-parameters ><![CDATA[#[vars.dbRequest]]]></db:input-parameters>
+      </db:insert>
+      <logger level="INFO" doc:name="Employee Backup Table Response" doc:id="13757c5e-17e2-4281-b960-363f9f557977" message="Employee Backup Table Response : #[payload]" />
+      <http:request method="GET" doc:name="Request" doc:id="940f6c61-67a1-427c-b222-5a93ac89677a" config-ref="HTTP_Request_configuration" path="/singleResource2"/>
+      <logger level="INFO" doc:name="Accessing Payload" doc:id="ba6f2dd3-589e-4c77-a5cc-c8a6e4d622ee" message="#[payload]"/>
+    </try>
+    <logger level="INFO" doc:name="Logger" doc:id="053d4763-27fa-447d-be8b-09664ce21dfb" />
+  </flow>
+  <flow name="singleResourceFlow2" doc:id="5b77d102-0d99-4686-9369-39353be30be5" >
+    <http:listener doc:name="Listener" doc:id="755838dc-4e32-4140-8c4e-c912da9459c3" config-ref="HTTP_Listener_config" path="/singleResource2"/>
+    <set-payload value="Data Sync up has been done" doc:name="Set Payload" doc:id="432cb5e2-264d-4121-90ad-c7401f6b9cf1" />
+    <logger level="INFO" doc:name="Logger" doc:id="983cea5d-fd73-47b5-90a6-4d51d1708e79" message="singleResource2 "/>
+  </flow>
+</mule>

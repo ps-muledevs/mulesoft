@@ -1,0 +1,343 @@
+openapi: 3.0.3
+info:
+  title: emp-hr-database-sys-api
+  description: This API will be used for Employee HR Database Managment System API
+  version: v1
+servers:
+  - url: '{protocol}://{environment}.pluralsight.com/api/v1'
+    variables:
+      protocol:
+        enum: [http,https]
+        default: http
+      environment:
+        enum: [mulesoft-sandbox,mulesoft-staging,mulesoft]
+        default: mulesoft-staging
+tags:
+  - name: Employee
+    description: This API's will be used for Employee related services
+
+security:
+  - basicAuth: []
+
+paths:
+  /employees:
+    post:
+      description: This API will be used for creating multiple Employee data
+      tags:
+        - Employee
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/employee'
+                required: [id,firstname,lastName,email,phone,department,position,hireDate]
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/201'
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400'
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500'
+    get:
+      description: This API is used to fetch the multiple Employee Data
+      tags:
+        - Employee
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/employee'
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500'  
+  /employee:
+    post:
+      description: This API will be used to create a new single Employee
+      tags:
+        - Employee
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/employee'
+              required: [id,firstname,lastName,email,phone,department,position,hireDate] 
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/201'  
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400'  
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500'          
+    get:
+      description: This API will be used to fetch single employee
+      tags:
+        - Employee
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "01"
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/employee'
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/404'  
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500'                
+  /employee/{id}:
+    get:
+      description: This API will be used to fetch single employee
+      tags:
+        - Employee
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/employee'
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/404' 
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500' 
+    put:
+      description: This API will be used to update whole employee
+      tags:
+      - Employee 
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/id'        
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/employee'
+              required: [id] 
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/200' 
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400' 
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500' 
+    patch:
+      description: This API will be used to update employee partially
+      tags:
+      - Employee 
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/id'              
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/employee'
+              required: [id] 
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/200' 
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400' 
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/404' 
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500' 
+    delete:
+      description: This API will be used to delete employee
+      tags:
+      - Employee 
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/id'  
+      responses:
+        204:
+          description: "No Content"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/204' 
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/404' 
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500' 
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  parameters:
+    correlationId:
+      name: correlationId
+      in: header
+      schema:
+        type: string
+        example: "b5a95a63-f190-4c91-880a-5b54512fa6b1" 
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        example: "01"
+  schemas:
+    employee:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "01"
+        firstName:
+          type: string
+          example: "Trilochan"
+        lastName:
+          type: string
+          example: "Raparthi"
+        email:
+          type: string
+          pattern: ^[0-9a-zA-Z-+._]+@[a-zA-Z]+.[a-zA-Z]{2,63}$
+          example: "trilochan28raparthi@gmail.com"
+        phone:
+          type: string
+          pattern: ^[0-9]{1,10}$
+          example: "8686554447"
+        department:
+          type: string
+          example: "Engineering"
+        position:
+          type: string
+          example: "Software Engineering"
+        hireDate:
+          type: string
+          example: "21-03-2024"
+    200:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Employee updated successfully"
+    201:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Employee created successfully"
+    204:
+      type: object
+
+    400:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Bad Request"    
+    404:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Not Found"
+    500:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Internal Server Error"
