@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce-composite="http://www.mulesoft.org/schema/mule/salesforce-composite" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/salesforce-composite http://www.mulesoft.org/schema/mule/salesforce-composite/current/mule-salesforce-composite.xsd">
+  <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="15d3728b-8965-4ad4-a5cd-0144fede72ce" >
+    <http:listener-connection host="0.0.0.0" port="8081" />
+  </http:listener-config>
+  <!-- <salesforce-composite:composite-config name="Salesforce_Composite_Config" doc:name="Salesforce Composite Config" doc:id="e5b0712e-ae73-44dd-9550-c16ebd9248ec" >
+    <salesforce-composite:config-with-oauth-connection >
+      <salesforce-composite:oauth-callback-config listenerConfig="HTTP_Listener_config" />
+    </salesforce-composite:config-with-oauth-connection>
+  </salesforce-composite:composite-config>  -->
+  <flow name="batch-composite-pocFlow" doc:id="470104ce-771d-44d9-ab87-b272e036bb6f" >
+    <http:listener doc:name="Listener" doc:id="ed77290c-4f70-41ba-b0c2-16f23cc7e413" config-ref="HTTP_Listener_config" path="/test"/>
+    <ee:transform doc:name="Transform Message" doc:id="c0588989-0b2e-4ef9-aa0f-cffeec38688e" >
+      <ee:message >
+        <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+[1,2,3,4,5,6,7,8,9,10,11,12]]]></ee:set-payload>
+      </ee:message>
+    </ee:transform>
+    <batch:job jobName="batch-composite-pocBatch_Job" doc:id="87f5f75f-21c7-43ec-86fa-ef0d7fa2912f" blockSize="6" maxFailedRecords="3">
+      <batch:process-records >
+        <batch:step name="Batch_Step" doc:id="9e4d05da-516c-4321-8dd4-f8990a2d6dbd" acceptPolicy="ALL">
+          <choice doc:name="Choice" doc:id="e0c4be01-6ea7-4b26-9fd6-fa2ddb0390a9">
+            <when expression="#[payload != 6 and payload != 7]">
+              <ee:transform doc:name="Transform Message" doc:id="2db3afde-6e23-4abf-9386-e979a3dfcd18">
+                <ee:message>
+                  <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+                </ee:message>
+              </ee:transform>
+            </when>
+            <otherwise>
+              <raise-error doc:name="Raise error" doc:id="474479f4-0e5d-41b9-b61b-4f5e8b561cb3" type="TEST:ERROR" description="Wrong Value Error " />
+            </otherwise>
+          </choice>
+          <batch:aggregator doc:name="Batch Aggregator" doc:id="a0d4ffff-6399-45f0-993d-6be0055b105a" size="3">
+            <logger level="INFO" doc:name="Logger" doc:id="707966b4-661f-490d-95a2-5e1caf5d0354" message="#[payload]"/>
+          </batch:aggregator>
+        </batch:step>
+        <batch:step name="Batch_Step1" doc:id="19f5459a-d404-4021-8bea-a9bc2d819f0b" acceptPolicy="ONLY_FAILURES">
+          <ee:transform doc:name="Transform Message" doc:id="31ad94c5-3795-4db9-b682-bc5b2799bfd7" >
+            <ee:message >
+              <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+//vars.'_mule_batch_INTERNAL_record'.Batch_Step.summaryMessage]]></ee:set-payload>
+            </ee:message>
+          </ee:transform>
+          <logger level="INFO" doc:name="Logger" doc:id="1e9e3a45-2467-4239-a826-b228b94667de" message="#[payload]"/>
+          <batch:aggregator doc:name="Batch Aggregator" doc:id="9b062ad0-1c69-4371-8ad8-dd06feb2b304" size="3">
+            <logger level="INFO" doc:name="Logger" doc:id="7156b381-e8c0-44a1-b641-591b757fcbc5" message="#[payload]"/>
+          </batch:aggregator>
+        </batch:step>
+        <batch:step name="Batch_Step2" doc:id="f721b820-eebe-4e1e-882c-e564fbe7414e">
+          <ee:transform doc:name="Transform Message" doc:id="cdce20b3-3628-4398-94df-fb1f11785d5e" >
+            <ee:message >
+              <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+          </ee:transform>
+        </batch:step>
+      </batch:process-records>
+      <batch:on-complete >
+        <ee:transform doc:name="Transform Message" doc:id="147fb23e-d63e-4229-9781-7700a2506224" >
+          <ee:message >
+            <ee:set-payload ><![CDATA[output text/plain
+---
+"duns attribution job completed \n" ++
+"Migration Report: \n"
+ 
+++ "\n Time [milliseconds]: " 		++ payload.elapsedTimeInMillis!
+++ "\n Total Records: "				++ payload.totalRecords!
+++ "\n Successful Records: "		++ payload.successfulRecords!
+++ "\n Failed Records: "			++ payload.failedRecords!
+++ "\n Loaded Records: "			++ payload.loadedRecords!
+++ "\n Processed Records: " 		++ payload.processedRecords!]]></ee:set-payload>
+          </ee:message>
+        </ee:transform>
+      </batch:on-complete>
+    </batch:job>
+  </flow>
+  <!-- [STUDIO:"batch-composite-pocFlow1"]<flow name="batch-composite-pocFlow1" doc:id="d5c28ec2-d9de-4192-ad24-ba659396801d" >
+    <http:listener doc:name="Listener" doc:id="973b600e-5ea3-4e6d-98fa-457505cdd1c6" config-ref="HTTP_Listener_config" path="/composite"/>
+    <ee:transform doc:name="Transform Message" doc:id="a1ff48b1-46f3-4597-96bb-bbc7f4335b42" >
+      <ee:message >
+        <ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+&#45;&#45;-
+{
+	"allOrNone": true,
+	"collateSubrequests": false,
+	"compositeRequest": [{
+		"method": "POST",
+		"url": "/services/data/v63.0/sobjects/Account",
+		"referenceId": "refAccount",
+		"body": {
+			"Name": "Sample Account"
+		}
+	},{
+		"method": "POST",
+		"url": "/services/data/v63.0/sobjects/Contact",
+		"referenceId": "refContact",
+		"body": {
+			"LastName": "Sample Contact",
+			"AccountId": "@{refAccount.id}"
+		}
+	}&#93;
+}&#93;&#93;></ee:set-payload>
+      </ee:message>
+    </ee:transform>
+    <salesforce-composite:execute-composite-request doc:name="Execute composite request" doc:id="f40f9f87-e288-48c4-bc21-93b0281114db" doc:description="When subrequests are collated, the processing speed is faster, but the order of execution is not guaranteed (unless there is an explicit dependency between the subrequests).&#10;&#10;If collation is disabled, then the subrequests are executed in the order in which they are received." config-ref="Salesforce_Composite_Config"/>
+  </flow> [STUDIO] -->
+</mule>
