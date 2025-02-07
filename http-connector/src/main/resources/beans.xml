@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:ss="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-5.8.xsd">
+
+    <!-- Define an Authentication Manager Bean -->
+    <ss:authentication-manager alias="authenticationManager">
+        <ss:authentication-provider>
+            <ss:user-service id="userService">
+                <ss:user name="${secure::api.username}" password="${secure::api.password}" authorities="Trilochan" />
+                <ss:user name="joe" password="{noop}secret" authorities="ROLE_USER" />
+            </ss:user-service>
+        </ss:authentication-provider>
+    </ss:authentication-manager>
+
+</beans>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+	<flow name="Streaming-Strategy-Flow-Demo" doc:id="1b9ebc7a-85d1-4d3c-9e67-bd186b5427e4" >
+		<http:listener doc:name="Listener Path /flow1" doc:id="4ddeed68-82ec-4c08-8b95-6abe3af19494" path="/flow1" config-ref="httpListenerConfig">
+			<repeatable-in-memory-stream bufferUnit="MB" />
+		</http:listener>
+		<logger level="INFO" doc:name="Streaming Strategy Demo Flow Started" doc:id="18934447-03c8-4319-8e0c-ab43d60bcf6f" message="Streaming Strategy Demo Flow Started"/>
+		<db:select doc:id="b250b806-e35f-4a22-97a6-d0e31d0be582" config-ref="employeeDatabaseConfig" doc:name="Select Employee Table">
+			<db:sql ><![CDATA[select * from Employee]]></db:sql>
+		</db:select>
+		<logger level="INFO" doc:name="Logging Raw Payload" doc:id="1a540bac-20fb-4b89-9718-07f6308d2da1" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logging Payload as Json" doc:id="6ecb1d42-69cd-4e6e-97ea-34a13360952f" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]"/>
+		<logger level="INFO" doc:name="Logging Raw Payload After Stream Consumed" doc:id="1a89f696-f5ab-45e9-a645-3b9a0c945960" message="#[payload]" />
+		<logger level="INFO" doc:name="Logging Payload as Json After Stream Consumed" doc:id="fb1f0c4f-8e68-4f26-a80d-db2e70f07eaa" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]" />
+	</flow>
+	<flow name="Redelivery-Policy-Demo" doc:id="f823451d-5128-4430-9484-368100eecf92" >
+		<http:listener doc:name="Listener Path /flow2" doc:id="f816db64-2d8e-4de1-ae90-1b5d95fd0594" config-ref="httpListenerConfig" path="/flow2">
+			<redelivery-policy maxRedeliveryCount="2"/>
+		</http:listener>
+		<logger level="INFO" doc:name="Redelivery Policy Demo Flow Started" doc:id="5a21ff39-4d32-443b-b9b3-3efab0effc26" message="Redelivery Policy Demo Flow Started" />
+		<ee:transform doc:name="Payload as Json" doc:id="1b9a311b-426f-4859-b703-58b87570ea5a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload ++ payloadd]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Redelivery Policy Demo Flow Ended" doc:id="3be5ae50-487f-42b6-bdb9-eee38c086928" message="Redelivery Policy Demo Flow Ended" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="050efe49-b740-4b31-87b3-2724d6024906" type="MULE:REDELIVERY_EXHAUSTED" >
+				<logger level="ERROR" doc:name="Logger" doc:id="dade8eff-5124-4b6a-a8e6-78d14ffb2710" message="Redelivery exhausted in http listener" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="Responses-Demo" doc:id="fb237208-74fd-4b08-8bf2-5b03414cabff" >
+		<http:listener doc:name="Listener Path /flow3" doc:id="2edc4df9-71a9-44ef-841b-8f6e6283d0e9" config-ref="httpListenerConfig" path="/flow3" >
+		</http:listener>
+		<logger level="INFO" doc:name="Responses-Demo Flow Started" doc:id="270372fd-dc9b-446a-b5f6-173b10944289" message="Responses-Demo Flow Started" />
+		<ee:transform doc:name="Payload as Json" doc:id="b0ae934a-3129-426a-8000-9a4360ec7e46" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Responses-Demo Flow Ended" doc:id="83147dc0-cbf5-47fa-aab3-0af48effd479" message="Responses-Demo Flow Ended" />
+	</flow>
+	<flow name="MimeType-Demo" doc:id="551e3974-d375-4c1a-87af-888f8f5cb972" >
+		<http:listener doc:name="Listener Path /flow4" doc:id="bc300fe9-5f3f-4bcf-bd2b-320c42b3b204" config-ref="httpListenerConfig" path="/flow4" outputMimeType="application/csv">
+			<redelivery-policy maxRedeliveryCount="2" />
+		</http:listener>
+		<logger level="INFO" doc:name="MimeType Demo Flow Started" doc:id="74a5d877-6175-4026-bd21-c7352659936e" message="MimeType Demo Flow Started" />
+		<ee:transform doc:name="Payload as Json" doc:id="80572bf4-da61-48f7-86ec-13ff8e0ad35d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="MimeType Demo Flow Ended" doc:id="a361b973-60d7-431b-a965-51449550f282" message="MimeType Demo Flow Ended" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="122bc1b5-9823-4c38-ae34-a538faa32ca6" type="MULE:REDELIVERY_EXHAUSTED" >
+				<logger level="ERROR" doc:name="Logger" doc:id="3ff4ea84-fd93-4281-a12e-dd82c2655cb4" message="Redelivery exhausted in http listener" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	
+</mule>

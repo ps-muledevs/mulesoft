@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="load-static-resource-flow" doc:id="c15573c3-6160-4e50-9692-4e5b7e200eb0" >
+		<http:listener doc:name="Listener" doc:id="f3d6ab6c-a504-4602-8361-f1b0f2408866" config-ref="httpListenerConfig" path="/flow5"/>
+		<http:load-static-resource doc:name="Load static resource" doc:id="b084df50-1c51-4f3e-a86f-2b03170dae62" resourceBasePath="/Users/trilochan-raparthi/AnypointStudio/http/http-connector-demo/src/main/resources/api"/>
+	</flow>
+</mule>

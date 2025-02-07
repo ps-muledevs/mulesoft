@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:spring="http://www.mulesoft.org/schema/mule/spring"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+          http://www.mulesoft.org/schema/mule/http
+          http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+          http://www.mulesoft.org/schema/mule/spring
+          http://www.mulesoft.org/schema/mule/spring/current/mule-spring.xsd">
+
+    <!-- Spring Configuration File -->
+    <spring:config name="Spring_Config" files="beans.xml" />
+
+    <!-- Spring Security Manager -->
+    <spring:security-manager doc:name="Spring Security manager">
+        <spring:delegate-security-provider name="memory-provider" delegate-ref="authenticationManager" />
+    </spring:security-manager>
+
+    <!-- HTTP Listener Config -->
+
+    <!-- Flow Definition -->
+    <flow name="basicSecurityFilterFlow">
+        <!-- HTTP Listener -->
+
+        <!-- Basic Security Filter (for basic auth) -->
+        <http:listener doc:name="Listener" doc:id="f30f5496-3ab9-4027-a1ae-204fdd873acd" path="/flow6" config-ref="httpListenerConfig"/>
+
+        <!-- Spring Authorization Filter (checks for role-based access) -->
+        <http:basic-security-filter doc:name="Basic security filter" doc:id="9311d58f-1582-407f-954e-71f267a35d37" realm="mule"/>
+		<spring:authorization-filter doc:name="Authorization filter" requiredAuthorities="ROLE_ADMIN,ROLE_USER"/>
+
+        <!-- Transform Message to Return JSON -->
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+    </flow>
+
+</mule>

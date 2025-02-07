@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="3f916c51-4e7d-4556-88ee-6179d40360f5" >
+		<http:request-connection host="api.restful-api.dev" protocol="HTTPS"/>
+	</http:request-config>
+	<flow name="httpRequestFlow" doc:id="e90b78ac-f1b5-470a-91c0-eeb721a2c446" >
+		<http:listener doc:name="Listener" doc:id="85d0008f-7a26-4281-82b3-c40d3f6f3b0c" config-ref="httpListenerConfig" path="/flow7"/>
+		<http:request method="GET" doc:name="Request" doc:id="e5359fbf-f53b-4707-92cb-0476bb1b366e" config-ref="HTTP_Request_configuration" path="/objects"/>
+		<ee:transform doc:name="Transform Message" doc:id="5dced1ff-4bae-415b-9f6c-e98d614f12cc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
